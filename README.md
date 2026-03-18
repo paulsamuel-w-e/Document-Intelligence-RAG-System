@@ -42,14 +42,14 @@ PDF
 
 📂 Project Structure
 
-agents/        → Agent orchestration and tools
-rag/           → Embeddings, retriever (hybrid), vector store, splitter
-llm/           → LLM abstraction layer
-ingestion/     → PDF loading and OCR
-eval/          → Evaluation dataset + evaluator
-utils/         → Logging utilities
-test/          → CLI pipeline and evaluation scripts
-docs/          → System documentation
+- agents/ → Agent orchestration and tools  
+- rag/ → Embeddings, retriever (hybrid), vector store, splitter  
+- llm/ → LLM abstraction layer  
+- ingestion/ → PDF loading and OCR  
+- eval/ → Evaluation dataset + evaluator  
+- utils/ → Logging utilities  
+- test/ → CLI pipeline and evaluation scripts  
+- docs/ → System documentation  
 
 ---
 
