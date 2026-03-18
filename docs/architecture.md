@@ -1,78 +1,95 @@
-# 🏗️ System Architecture
+🏗️ System Architecture
 
-## Overview
+Overview
 
-The system follows a modular RAG pipeline:
+The system follows a **multi-stage hybrid RAG architecture**:
 
-```
-Ingestion → Processing → Embedding → Storage → Retrieval → Generation
-```
+Ingestion → Processing → Embedding → Storage → Hybrid Retrieval → Filtering → Generation → Evaluation
 
 ---
 
-## Layers
+Layers
 
-### 1. Ingestion Layer
+1. Ingestion Layer
 
-* Extracts text from PDFs using PyMuPDF
-* Falls back to OCR using PaddleOCR
-
----
-
-### 2. Processing Layer
-
-* Cleans text (removes noise)
-* Splits into chunks using recursive splitting
+* Extracts text via PyMuPDF
+* OCR fallback via PaddleOCR
+* Quality-based switching
 
 ---
 
-### 3. Embedding Layer
+2. Processing Layer
 
-* Converts text chunks into dense vectors
-* Uses sentence-transformers
-
----
-
-### 4. Storage Layer
-
-* FAISS vector store (IndexFlatIP)
-* Stores embeddings + raw text
+* Cleans noise (references, captions, page numbers)
+* Splits into chunks
+* Assigns metadata (section detection: abstract / intro / related / body)
 
 ---
 
-### 5. Retrieval Layer
+3. Embedding Layer
 
-* Converts query → embedding
-* Retrieves top-k relevant chunks
-
----
-
-### 6. Agent Layer
-
-* Detects user intent
-* Routes to appropriate tool
+* SentenceTransformer (MiniLM)
+* Produces normalized dense vectors
 
 ---
 
-### 7. Tools Layer
+4. Storage Layer
 
-* Task-specific prompt construction:
-
-  * QA
-  * Summarization
-  * Extraction
+* FAISS (IndexFlatIP)
+* Stores embeddings + metadata-rich chunks
 
 ---
 
-### 8. LLM Layer
+5. Retrieval Layer (Hybrid)
 
-* Generates final response
-* Supports OpenAI + local models
+* Dense search (semantic similarity)
+* Sparse search (BM25 keyword matching)
+* Merging (score aggregation)
+* Metadata weighting (e.g., downweight “related work”)
+* Optional reranking
 
 ---
 
-## Design Principles
+6. Agent Layer
+
+* Intent detection (summarize / extract / QA)
+* Query-type classification (broad / fact / deep)
+* Adaptive retrieval strategy (dynamic top_k)
+
+---
+
+7. Tools Layer
+
+Task-specific prompt templates:
+
+* Summarization → global synthesis
+* Extraction → structured facts
+* QA → grounded answers
+
+(Note: Prompt control is currently basic and not strictly enforced)
+
+---
+
+8. LLM Layer
+
+* OpenAI or local model
+* Prompt-driven generation
+* Output quality depends on model capability
+
+---
+
+9. Evaluation Layer
+
+* Dataset-driven evaluation
+* Retrieval vs Answer scoring
+* Hallucination detection
+* Difficulty-based analysis
+
+---
+
+Design Principles
 
 * Modular and extensible
-* Clear separation of concerns
-* Replaceable components
+* Retrieval ≠ generation separation
+* Evaluation-driven development
+* Debuggable and observable pipeline

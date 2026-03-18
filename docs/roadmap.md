@@ -1,52 +1,64 @@
-# 🚀 Roadmap
+🚀 Roadmap
 
-## Phase 1 (High Impact)
+Phase 1 (Next Immediate)
 
-* Add reranking (cross-encoder)
-* Improve prompt structure
-* Add metadata to chunks
-
----
-
-## Phase 2
-
-* Hybrid search (BM25 + embeddings)
-* Adaptive retrieval (dynamic top-k)
-* Section-aware chunking
+* Improve prompt structure (negation, reasoning control)
+* Add citation grounding ([Chunk X])
+* Improve answer formatting consistency
 
 ---
 
-## Phase 3
+Phase 2 (High Impact)
 
-* Evaluation framework:
+* Switch to stronger LLM (OpenAI backend)
+* Structured context construction:
 
-  * retrieval accuracy
-  * answer correctness
-  * hallucination detection
+  * section-aware grouping
+  * prioritized ordering
 
 ---
 
-## Phase 4
+Phase 3
 
+* Semantic chunking (heading-aware splitting)
+* Adaptive retrieval (score thresholds, dynamic k)
+* Improved reranking
+
+---
+
+Phase 4
+
+Evaluation Enhancements:
+
+* LLM-based grading
+* Faithfulness scoring
+* Retrieval recall@k
+
+---
+
+Phase 5
+
+System Engineering:
+
+* Caching (OCR, embeddings, LLM responses)
 * Streaming responses
-* Caching:
-
-  * OCR
-  * embeddings
-  * LLM responses
+* Batch processing
 
 ---
 
-## Phase 5
+Phase 6 (Advanced Agent)
 
-* Advanced agent:
-
-  * LLM-based routing
-  * multi-step reasoning
+* LLM-based routing
+* Multi-step reasoning
+* Tool chaining
 
 ---
 
-## Long-Term Vision
+Long-Term Vision
 
-* Production-grade document intelligence system
-* Scalable, explainable, and reliable RAG pipeline
+A production-grade document intelligence system that is:
+
+* Reliable (evaluated and measurable)
+* Explainable (citations + grounding)
+* Scalable (optimized pipeline)
+* Generalizable across domains

@@ -1,64 +1,75 @@
-# ⚠️ Current Limitations
+⚠️ Current Limitations
 
-## 1. LLM Layer
+1. LLM Layer
 
-* Weak local model (Flan-T5)
-* No structured prompting
-* No citation enforcement
-
----
-
-## 2. Retrieval
-
-* No reranking
-* Fixed top-k
-* No score filtering
-* No hybrid search
+* Local model (Flan-T5) has weak reasoning ability
+* Poor handling of negation and multi-step reasoning
+* Occasional copying of context patterns
 
 ---
 
-## 3. Context Handling
+2. Prompting / Generation Control
 
-* Naive concatenation
-* No metadata
-* No prioritization of important sections
-* No global context awareness
+* Prompts are not strictly enforced
+* Model may copy context artifacts (e.g., [Chunk X])
+* Weak control over output structure
+* Answers may be incomplete or overly short
 
 ---
 
-## 4. Chunking
+3. Context Construction (Major Limitation)
+
+* Flat concatenation of chunks
+* No hierarchical structure
+* No prioritization (abstract > intro > body)
+* No global document awareness
+
+---
+
+4. Answer Quality
+
+* Often extractive instead of explanatory
+* Missing key concepts despite correct retrieval
+* Weak synthesis across multiple chunks
+
+---
+
+5. Chunking
 
 * Character-based splitting
-* Breaks semantic structure
-* Not section-aware
+* Breaks semantic boundaries
+* Not heading-aware
 
 ---
 
-## 5. Agent Layer
+6. Agent Layer
 
-* Keyword-based intent detection
-* Not robust for complex queries
-
----
-
-## 6. Ingestion
-
-* No caching
-* No partial OCR
-* Full OCR fallback only
+* Heuristic routing (keyword-based)
+* Limited handling of complex queries
 
 ---
 
-## 7. System
+7. Evaluation
 
-* No streaming
-* No latency handling
-* No caching
+* Keyword-based scoring (approximate)
+* Simple hallucination heuristic
+* No semantic grading
 
 ---
 
-## 8. Evaluation
+8. System Engineering
 
-* No answer correctness metrics
-* No retrieval evaluation
-* No hallucination detection
+* No caching (OCR / embeddings / LLM)
+* No streaming responses
+* No latency optimization
+
+---
+
+🧠 Key Insight
+
+The system’s primary bottleneck is:
+
+→ LLM reasoning and synthesis, not retrieval
+
+Retrieval performance is strong (~0.67),
+but answer quality remains low (~0.22).

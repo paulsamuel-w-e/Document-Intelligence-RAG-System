@@ -1,96 +1,115 @@
-# 📄 Document Intelligence RAG System
+📄 Document Intelligence RAG System
 
-A modular **Retrieval-Augmented Generation (RAG)** system for document understanding tasks such as:
+A modular, production-oriented Retrieval-Augmented Generation (RAG) system for document understanding tasks such as:
 
 * Question Answering (QA)
 * Summarization
 * Key Information Extraction
 
-Built with a clean, extensible architecture using FAISS, sentence-transformers, and pluggable LLM backends.
+The system implements **hybrid retrieval (dense + sparse), metadata-aware filtering, and evaluation-driven development**.
 
 ---
 
-## 🚀 Features
+🚀 Features
 
-* 📥 PDF ingestion with OCR fallback (PaddleOCR)
-* ✂️ Intelligent text cleaning and chunking
-* 🔎 Semantic search using FAISS
-* 🧠 LLM abstraction (OpenAI + Local HuggingFace)
-* 🤖 Agent-based query routing (QA / summarize / extract)
-* 🧪 End-to-end CLI pipeline
-
----
-
-## 🏗️ Architecture
-
-```
-PDF → Ingestion → Chunking → Embeddings → Vector Store → Retriever → Agent → Tools → LLM → Output
-```
+📥 PDF ingestion with OCR fallback (PaddleOCR)
+✂️ Text cleaning and chunking with noise filtering
+🔎 Hybrid retrieval (FAISS + BM25)
+🎯 Metadata-aware ranking (section-based weighting)
+🧠 LLM abstraction (OpenAI + Local HuggingFace)
+🤖 Agent-based query routing with query-type awareness
+📊 Evaluation framework (retrieval + answer quality + hallucination signals)
+🧪 CLI-based testing and benchmarking
 
 ---
 
-## 📂 Project Structure
+🏗️ Architecture
 
-```
+PDF
+→ Ingestion
+→ Cleaning + Chunking
+→ Embeddings (dense)
+→ Vector Store (FAISS)
+→ Hybrid Retrieval (Dense + BM25)
+→ Metadata Filtering
+→ Reranking
+→ Agent (routing + strategy)
+→ Tools (QA / Summarize / Extract)
+→ LLM
+→ Output
+
+---
+
+📂 Project Structure
+
 agents/        → Agent orchestration and tools
-rag/           → Embeddings, retriever, vector store, splitter
+rag/           → Embeddings, retriever (hybrid), vector store, splitter
 llm/           → LLM abstraction layer
 ingestion/     → PDF loading and OCR
+eval/          → Evaluation dataset + evaluator
 utils/         → Logging utilities
-test/          → End-to-end pipeline
-docs/          → Detailed documentation
-```
+test/          → CLI pipeline and evaluation scripts
+docs/          → System documentation
 
 ---
 
-## ⚙️ Installation
+⚙️ Installation
 
-```bash
 pip install -r requirements.txt
-```
 
 ---
 
-## ▶️ Usage
+▶️ Usage
 
-```bash
-python -m test.test_rag --pdf data/sample.pdf
-```
+Run single query:
 
-Custom query:
-
-```bash
 python -m test.test_rag --pdf data/sample.pdf --query "What is this paper about?"
-```
+
+Run evaluation:
+
+python -m test.test_eval --pdf data/sample.pdf --backend local
 
 ---
 
-## 🧠 Supported LLMs
+🧠 Supported LLMs
 
 * OpenAI (GPT models)
 * Local HuggingFace (Flan-T5)
 
 ---
 
-## ⚠️ Current Limitations
+📊 Evaluation
 
-* Basic semantic retrieval (no reranking)
-* No hybrid search (BM25 + embeddings)
-* Naive context construction
-* No evaluation framework
+The system includes a dataset-driven evaluation pipeline measuring:
 
----
-
-## 🔮 Roadmap
-
-* Reranking (cross-encoder / LLM)
-* Metadata-aware retrieval
-* Hybrid search
-* Structured prompting with citations
-* Evaluation metrics and benchmarking
+* Retrieval quality (keyword recall in retrieved chunks)
+* Answer quality (keyword coverage in generated response)
+* Hallucination signals (context grounding checks)
+* Difficulty-wise performance (easy / medium / hard / tricky)
 
 ---
 
-## 📜 License
+⚠️ Current Limitations
+
+* Local LLM (Flan-T5) limits reasoning quality
+* Context construction is still flat (no hierarchical structure)
+* Prompt control is still basic (structured generation not fully enforced)
+* No citation validation yet
+* No semantic chunking (still character-based)
+* Agent routing is heuristic (not LLM-driven)
+
+---
+
+🔮 Roadmap
+
+* Structured context construction (section-aware)
+* Stronger prompt control and grounded generation
+* Semantic chunking (heading-aware)
+* LLM-based routing
+* Production optimizations (caching, streaming)
+
+---
+
+📜 License
 
 MIT License

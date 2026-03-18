@@ -1,73 +1,92 @@
-# 🔄 End-to-End Pipeline
+🔄 End-to-End Pipeline
 
-## Step-by-Step Flow
-
-### 1. Document Loading
-
-* Input: PDF file
-* Output: raw text
+1. Document Loading
+   Input: PDF
+   Output: raw text
 
 ---
 
-### 2. Text Extraction
+2. Text Extraction
 
-* PyMuPDF extracts text
+* PyMuPDF primary extraction
 * OCR fallback if quality is low
 
 ---
 
-### 3. Text Cleaning
+3. Text Cleaning
+   Removes:
 
-* Removes:
-
-  * references
-  * captions
-  * page numbers
-
----
-
-### 4. Chunking
-
-* Chunk size: 500
-* Overlap: 100
-* Filters noisy chunks
+* references
+* captions
+* page numbers
 
 ---
 
-### 5. Embedding Generation
+4. Chunking
 
-* Converts chunks into vectors
+* Fixed-size chunking (500 / overlap 100)
+* Noise filtering
+* Section tagging (abstract, intro, related, body)
+
+---
+
+5. Embedding Generation
+
+* Dense vector encoding (MiniLM)
 * Normalized for cosine similarity
 
 ---
 
-### 6. Vector Storage
+6. Vector Storage
 
-* Stored in FAISS index
-* Supports similarity search
-
----
-
-### 7. Query Processing
-
-#### a. Intent Detection
-
-* Keyword-based routing
-
-#### b. Retrieval
-
-* Top-k chunks retrieved
-
-#### c. Tool Execution
-
-* Prompt constructed
-
-#### d. LLM Generation
-
-* Final response produced
+* FAISS index
+* Stores embeddings + metadata
 
 ---
 
-## Output
+7. Query Processing
+
+a. Query Understanding
+
+* Intent detection
+* Query type classification
+
+b. Hybrid Retrieval
+
+* Dense retrieval (semantic)
+* Sparse retrieval (BM25)
+* Merge + score aggregation
+
+c. Filtering & Ranking
+
+* Metadata weighting
+* Optional reranking
+
+d. Context Construction
+
+* Top-k chunk selection
+* Flattened context (current limitation)
+
+e. Tool Execution
+
+* QA / summarize / extract
+
+f. LLM Generation
+
+* Prompt-driven output
+
+---
+
+8. Evaluation (NEW)
+
+* Retrieval scoring
+* Answer scoring
+* Hallucination detection
+* Difficulty-based reporting
+
+---
+
+Output
 
 * Answer / Summary / Extracted facts
+* Evaluation metrics (optional mode)

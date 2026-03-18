@@ -1,63 +1,87 @@
-# 🧩 Module Breakdown
+🧩 Module Breakdown
 
-## ingestion/
+ingestion/
 
 * PDF loader
 * OCR fallback
+* Quality heuristics
 
 ---
 
-## rag/embeddings.py
+rag/embeddings.py
 
 * SentenceTransformer wrapper
 * Batch encoding
 
 ---
 
-## rag/vectorstore.py
+rag/vectorstore.py
 
-* FAISS-based storage
-* Add/search/save/load
-
----
-
-## rag/retriever.py
-
-* Query encoding
-* Top-k retrieval
+* FAISS storage
+* Stores metadata-rich chunks
 
 ---
 
-## rag/splitter.py
+rag/bm25.py (NEW)
+
+* Sparse retrieval using BM25
+
+---
+
+rag/retriever.py
+
+* Hybrid retrieval (dense + sparse)
+* Score merging
+* Metadata weighting
+* Reranking support
+* Dual interface:
+
+  * retrieve() → production
+  * retrieve_with_metadata() → evaluation
+
+---
+
+rag/splitter.py
 
 * Text cleaning
-* Chunking logic
+* Chunking
+* Section detection
 
 ---
 
-## agents/agent.py
+agents/agent.py
 
 * Intent detection
-* Pipeline orchestration
+* Query-type classification
+* Adaptive retrieval
+* Tool routing
 
 ---
 
-## agents/tools.py
+agents/tools.py
 
-* QA
 * Summarization
 * Extraction
+* QA
+* Structured prompting
 
 ---
 
-## llm/llm_wrapper.py
+llm/llm_wrapper.py
 
 * BaseLLM interface
 * OpenAI backend
-* Local HF backend
+* Local HuggingFace backend
 
 ---
 
-## utils/logger.py
+eval/ (NEW)
+
+* eval_data.json (dataset)
+* evaluator.py (metrics + diagnostics)
+
+---
+
+utils/logger.py
 
 * Central logging system
