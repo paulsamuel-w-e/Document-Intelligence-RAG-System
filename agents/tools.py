@@ -13,7 +13,10 @@ _MAX_CONTEXT_CHARS = 3000  # guard against token overflow
 
 def _truncate_context(chunks: list[str]) -> str:
     """Join chunks and truncate to a safe length."""
-    combined = "\n\n".join(chunks)
+    combined = "\n\n".join(
+        f"[Chunk {i+1}]\n{chunk}"
+        for i, chunk in enumerate(chunks)
+    )
     if len(combined) > _MAX_CONTEXT_CHARS:
         combined = combined[:_MAX_CONTEXT_CHARS] + "\n...[truncated]"
     return combined
@@ -32,12 +35,17 @@ def summarize(chunks: list[str], llm: BaseLLM) -> str:
     """
     context = _truncate_context(chunks)
     prompt = (
-        "You are a document summarisation assistant.\n\n"
-        "Below is extracted content from a document:\n\n"
-        f"{context}\n\n"
-        "Write a clear, concise summary (3-5 sentences) covering the main points. "
-        "Do not add information that is not present in the text."
+        "You are a document summarization assistant.\n\n"
+        "Summarize the document based on the context below.\n\n"
+        "IMPORTANT:\n"
+        "- Focus on the main topic, purpose, and key contributions\n"
+        "- Combine information across chunks into a coherent summary\n"
+        "- Do NOT copy phrases directly\n"
+        "- Ignore irrelevant or repeated details\n\n"
+        f"Context:\n{context}\n\n"
+        "Write a clear summary in 3-5 sentences."
     )
+
     logger.debug("Calling summarize tool.")
     return llm.generate(prompt)
 
@@ -56,11 +64,15 @@ def extract_key_info(chunks: list[str], llm: BaseLLM) -> str:
     context = _truncate_context(chunks)
     prompt = (
         "You are an information extraction assistant.\n\n"
-        "From the document content below, extract key facts, entities, dates, "
-        "and important figures as a bullet-point list:\n\n"
-        f"{context}\n\n"
-        "Return only the bullet points. Do not include unsupported claims."
+        "Extract key facts from the document below.\n\n"
+        "IMPORTANT:\n"
+        "- Only include clearly supported facts\n"
+        "- Avoid duplicates\n"
+        "- Group related information if possible\n\n"
+        f"Context:\n{context}\n\n"
+        "Return bullet points."
     )
+
     logger.debug("Calling extract_key_info tool.")
     return llm.generate(prompt)
 
@@ -79,10 +91,13 @@ def answer_question(query: str, chunks: list[str], llm: BaseLLM) -> str:
     """
     context = _truncate_context(chunks)
     prompt = (
-        "You are a precise question-answering assistant.\n\n"
-        "Use ONLY the context below to answer the question. "
-        "If the answer is not present in the context, say: "
-        "'The document does not contain enough information to answer this question.'\n\n"
+        "You are a precise and technical question-answering assistant.\n\n"
+        "Use ONLY the context below to answer the question.\n\n"
+        "IMPORTANT:\n"
+        "- Provide a clear and complete explanation\n"
+        "- Combine relevant details from multiple chunks if needed\n"
+        "- Do NOT mix unrelated concepts\n"
+        "- If the answer is not present, say so clearly\n\n"
         f"Context:\n{context}\n\n"
         f"Question: {query}\n\n"
         "Answer:"

@@ -16,6 +16,8 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+import os
+
 
 # ---------------------------------------------------------------------------
 # Base
@@ -45,7 +47,7 @@ class OpenAILLM(BaseLLM):
 
     def __init__(
         self,
-        model: str = "gpt-4.1-mini",
+        model: str = "gpt-4.1-nano",
         api_key: Optional[str] = None,
     ) -> None:
         try:
@@ -54,7 +56,15 @@ class OpenAILLM(BaseLLM):
             raise ImportError("Run: pip install openai") from exc
 
         self.model = model
-        self._client = OpenAI(api_key=api_key)  # reads env var if None
+
+        # Read from env if not passed
+        api_key = api_key or os.getenv("OPENAI_API_KEY")
+
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY not found in environment")
+
+        self._client = OpenAI(api_key=api_key)
+
         logger.info("OpenAI LLM initialised (model=%s).", model)
 
     def generate(self, prompt: str, max_new_tokens: int = 512) -> str:

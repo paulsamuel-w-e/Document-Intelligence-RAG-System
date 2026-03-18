@@ -16,6 +16,10 @@ The script:
 import argparse
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # loads variables from .env into environment
 
 # ---------------------------------------------------------------------------
 # Make sure project root is on the Python path when run directly
@@ -26,6 +30,7 @@ from agents.agent import DocumentAgent
 from ingestion.loader import load_document
 from llm.llm_wrapper import get_llm
 from rag.embeddings import EmbeddingModel
+from rag.reranker import Reranker
 from rag.retriever import Retriever
 from rag.splitter import split_text
 from rag.vectorstore import VectorStore
@@ -77,7 +82,8 @@ def build_pipeline(pdf_path: str, backend: str, top_k: int = 5):
     logger.info("Vector store size: %d", store.size)
 
     # 5. Retriever
-    retriever = Retriever(embed_model, store, top_k=top_k)
+    reranker = Reranker()
+    retriever = Retriever(embed_model, store, top_k=top_k, reranker=reranker)
 
     # 6. LLM
     logger.info("=== Step 5: Loading LLM (backend=%s) ===", backend)
