@@ -23,20 +23,33 @@ The system implements **hybrid retrieval (dense + sparse), metadata-aware filter
 
 ---
 
-🏗️ Architecture
+## 🏗️ Architecture
 
-PDF
-→ Ingestion
-→ Cleaning + Chunking
-→ Embeddings (dense)
-→ Vector Store (FAISS)
-→ Hybrid Retrieval (Dense + BM25)
-→ Metadata Filtering
-→ Reranking
-→ Agent (routing + strategy)
-→ Tools (QA / Summarize / Extract)
-→ LLM
-→ Output
+The system follows a modular Retrieval-Augmented Generation (RAG) pipeline with hybrid retrieval and evaluation.
+
+![System Architecture](docs/images/architecture.png)
+
+### High-Level Flow
+
+PDF  
+→ Ingestion (PyMuPDF + OCR fallback)  
+→ Processing (cleaning + chunking + metadata)  
+→ Embeddings (SentenceTransformers)  
+→ Vector Store (FAISS)  
+→ Hybrid Retrieval (Dense + BM25)  
+→ Agent (intent + query-type routing)  
+→ Tools (QA / Summarization / Extraction)  
+→ LLM (OpenAI / Local)  
+→ Output  
+
+---
+
+### Key Enhancements
+
+- Hybrid Retrieval: Combines semantic (dense) + keyword (BM25) search  
+- Metadata Awareness: Section-based weighting (e.g., downweight "related work")  
+- Adaptive Retrieval: Dynamic top-k based on query type  
+- Evaluation Layer: Measures retrieval, answer quality, and hallucination  
 
 ---
 
