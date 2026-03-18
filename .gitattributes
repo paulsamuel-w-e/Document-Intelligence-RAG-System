@@ -1,0 +1,10 @@
+# Normalize line endings
+* text=auto
+
+# Treat binary files correctly
+*.faiss binary
+*.pkl binary
+*.pdf binary
+
+# Python files
+*.py text diff=python
