@@ -1,0 +1,96 @@
+[
+  {
+    "query": "What is this paper about?",
+    "expected_keywords": ["dual-backbone", "EfficientNet", "ResNet", "gastrointestinal", "classification"],
+    "difficulty": "easy"
+  },
+  {
+    "query": "What problem does the paper solve?",
+    "expected_keywords": ["classification", "gastrointestinal", "disease", "endoscopy"],
+    "difficulty": "easy"
+  },
+  {
+    "query": "What models are used in this paper?",
+    "expected_keywords": ["EfficientNet", "ResNet"],
+    "difficulty": "easy"
+  },
+  {
+    "query": "What is EfficientNet used for?",
+    "expected_keywords": ["feature", "texture", "multi-scale", "representation"],
+    "difficulty": "easy"
+  },
+
+  {
+    "query": "Why is EfficientNet useful in this model?",
+    "expected_keywords": ["texture", "multi-scale", "feature", "representation"],
+    "difficulty": "medium"
+  },
+  {
+    "query": "Why combine EfficientNet and ResNet?",
+    "expected_keywords": ["complementary", "features", "structure", "texture"],
+    "difficulty": "medium"
+  },
+  {
+    "query": "What advantages does the proposed model provide?",
+    "expected_keywords": ["performance", "accuracy", "feature", "fusion"],
+    "difficulty": "medium"
+  },
+  {
+    "query": "What datasets are used in the study?",
+    "expected_keywords": ["Kvasir", "dataset", "WCE"],
+    "difficulty": "medium"
+  },
+
+  {
+    "query": "Explain EfficientNet technically",
+    "expected_keywords": ["compound scaling", "depth", "width", "resolution"],
+    "difficulty": "hard"
+  },
+  {
+    "query": "Explain how the dual-backbone architecture works",
+    "expected_keywords": ["EfficientNet", "ResNet", "fusion", "features"],
+    "difficulty": "hard"
+  },
+  {
+    "query": "What is feature fusion in this paper?",
+    "expected_keywords": ["combine", "features", "representation"],
+    "difficulty": "hard"
+  },
+  {
+    "query": "How does the model improve classification performance?",
+    "expected_keywords": ["feature", "fusion", "representation", "accuracy"],
+    "difficulty": "hard"
+  },
+
+  {
+    "query": "What are the limitations of this study?",
+    "expected_keywords": ["validation", "dataset", "generalization"],
+    "difficulty": "hard"
+  },
+  {
+    "query": "Does the paper mention generalization issues?",
+    "expected_keywords": ["generalization", "dataset", "validation"],
+    "difficulty": "hard"
+  },
+  {
+    "query": "What challenges are mentioned in gastrointestinal image analysis?",
+    "expected_keywords": ["variation", "artifacts", "classification"],
+    "difficulty": "hard"
+  },
+
+  {
+    "query": "Is transformer-based modeling used in this paper?",
+    "expected_keywords": ["transformer", "not used", "cnn"],
+    "difficulty": "tricky"
+  },
+  {
+    "query": "Does the model rely on only one backbone?",
+    "expected_keywords": ["dual", "two", "backbone"],
+    "difficulty": "tricky"
+  },
+  {
+    "query": "What is NOT used in this approach?",
+    "expected_keywords": ["transformer", "attention"],
+    "difficulty": "tricky"
+  }
+]

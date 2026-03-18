@@ -36,14 +36,18 @@ def summarize(chunks: list[str], llm: BaseLLM) -> str:
     context = _truncate_context(chunks)
     prompt = (
         "You are a document summarization assistant.\n\n"
-        "Summarize the document based on the context below.\n\n"
+        "Summarize the document based only on the context below.\n\n"
         "IMPORTANT:\n"
         "- Focus on the main topic, purpose, and key contributions\n"
         "- Combine information across chunks into a coherent summary\n"
-        "- Do NOT copy phrases directly\n"
-        "- Ignore irrelevant or repeated details\n\n"
+        "- Do NOT copy phrases directly; paraphrase\n"
+        "- If the information is not present, say so explicitly\n\n"
+        "OUTPUT FORMAT:\n"
+        "Summary: <3-5 sentence paragraph>\n"
+        "SOURCES: [Chunk X], [Chunk Y]\n"
+        "CONFIDENCE: low|medium|high\n\n"
         f"Context:\n{context}\n\n"
-        "Write a clear summary in 3-5 sentences."
+        "Write the required output now."
     )
 
     logger.debug("Calling summarize tool.")
@@ -64,13 +68,14 @@ def extract_key_info(chunks: list[str], llm: BaseLLM) -> str:
     context = _truncate_context(chunks)
     prompt = (
         "You are an information extraction assistant.\n\n"
-        "Extract key facts from the document below.\n\n"
+        "From the document context below, extract key facts, entities, dates, "
+        "and important figures as bullet points. Include a source tag for each bullet.\n\n"
         "IMPORTANT:\n"
-        "- Only include clearly supported facts\n"
-        "- Avoid duplicates\n"
-        "- Group related information if possible\n\n"
+        "- Only include facts clearly supported by the context\n"
+        "- Return bullets in the form: '- Fact (SOURCE: [Chunk N])'\n"
+        "- If a fact is not present, do not invent it\n\n"
         f"Context:\n{context}\n\n"
-        "Return bullet points."
+        "Return only the bullet points."
     )
 
     logger.debug("Calling extract_key_info tool.")
@@ -94,16 +99,20 @@ def answer_question(query: str, chunks: list[str], llm: BaseLLM) -> str:
         "You are a precise and technical question-answering assistant.\n\n"
         "Use ONLY the context below to answer the question.\n\n"
         "IMPORTANT:\n"
-        "- Combine information from multiple chunks\n"
-        "- Explain the concept clearly, not just a phrase\n"
-        "- Include both WHAT it is and WHY it is used\n"
-        "- Do NOT copy sentences directly\n"
-        "- Do NOT include unrelated information\n\n"
-        "FORMAT:\n"
-        "Answer in 2–5 sentences with a clear explanation.\n\n"
+        "- Combine information from multiple chunks when relevant\n"
+        "- Provide both WHAT it is and WHY / how it works if asked\n"
+        "- Cite the supporting chunk(s) explicitly at the end of the answer using chunk labels\n"
+        "- If the answer is not present in the context, say: "
+        "'The document does not contain enough information to answer this question.'\n"
+        "- Output a one-line CONFIDENCE: low|medium|high\n\n"
+        "OUTPUT FORMAT:\n"
+        "Answer: <2-5 sentences>\n"
+        "SOURCES: [Chunk X], [Chunk Y]\n"
+        "CONFIDENCE: low|medium|high\n\n"
         f"Context:\n{context}\n\n"
         f"Question: {query}\n\n"
         "Answer:"
     )
+    
     logger.debug("Calling answer_question tool.")
     return llm.generate(prompt)

@@ -34,7 +34,7 @@ class Retriever:
         self._reranker = reranker
         self._bm25 = BM25Retriever(vector_store._chunks)
 
-    def retrieve(self, query: str, top_k: int | None = None) -> list[str]:
+    def _retrieve_internal(self, query: str, top_k: int | None = None) -> list[str]:
         """
         Retrieve top-k text chunks most relevant to the query.
 
@@ -101,4 +101,11 @@ class Retriever:
         else:
             logger.debug("Retrieved %d chunks.", len(final_chunks))
 
-        return final_chunks
+        return final_chunks, merged[:k]
+    
+    def retrieve(self, query: str, top_k: int | None = None):
+        chunks, _ = self._retrieve_internal(query, top_k)
+        return chunks
+    
+    def retrieve_with_metadata(self, query: str, top_k: int | None = None):
+        return self._retrieve_internal(query, top_k)
