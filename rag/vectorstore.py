@@ -28,13 +28,13 @@ class VectorStore:
     def __init__(self, dimension: int) -> None:
         self.dimension = dimension
         self._index = faiss.IndexFlatIP(dimension)
-        self._chunks: list[str] = []
+        self._chunks: list[dict] = []
 
     # ------------------------------------------------------------------
     # Mutation
     # ------------------------------------------------------------------
 
-    def add(self, chunks: list[str], embeddings: np.ndarray) -> None:
+    def add(self, chunks: list[dict], embeddings: np.ndarray) -> None:
         """
         Add text chunks and their pre-computed embeddings to the store.
 
@@ -79,8 +79,15 @@ class VectorStore:
         for score, idx in zip(scores[0], indices[0]):
             if idx == -1:
                 continue
+            chunk = self._chunks[idx]
+
             results.append(
-                {"text": self._chunks[idx], "score": float(score), "index": int(idx)}
+                {
+                    "text": chunk["text"],
+                    "section": chunk.get("section", "body"),
+                    "score": float(score),
+                    "index": int(idx),
+                }
             )
 
         return results

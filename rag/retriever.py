@@ -5,6 +5,7 @@ Thin glue between EmbeddingModel and VectorStore.
 
 from rag.embeddings import EmbeddingModel
 from rag.vectorstore import VectorStore
+from rag.bm25 import BM25Retriever
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -31,6 +32,7 @@ class Retriever:
         self._store = vector_store
         self.top_k = top_k
         self._reranker = reranker
+        self._bm25 = BM25Retriever(vector_store._chunks)
 
     def retrieve(self, query: str, top_k: int | None = None) -> list[str]:
         """
@@ -42,31 +44,61 @@ class Retriever:
         Returns:
             Ordered list of chunk strings (most relevant first).
         """
-        logger.debug("Retrieving top-%d chunks for query: '%s'", self.top_k, query)
 
+        k = top_k if top_k else self.top_k
+        logger.debug("Retrieving top-%d chunks for query: '%s'", k, query)
+        # --- Dense search ---
         query_vec = self._embed.encode_query(query)
-        k = top_k if top_k is not None else self.top_k
-        final_k = k
-        results = self._store.search(query_vec, top_k=k * 2)  # extra for filtering/rerank
+        dense_results = self._store.search(query_vec, top_k=k * 2)
 
-        # NEW: filter weak matches
-        MIN_SCORE = 0.3  # tune later
-        filtered = [r for r in results if r["score"] >= MIN_SCORE]
+        # --- Sparse search ---
+        sparse_results = self._bm25.search(query, top_k=k * 2)
 
-        # fallback if everything removed
-        if not filtered:
-            filtered = results
+        # --- Merge ---
+        combined = {}
 
-        chunks = [r["text"] for r in filtered]
+        for r in dense_results:
+            idx = r["index"]
+            combined[idx] = {
+                "text": r["text"],
+                "section": r.get("section", "body"),
+                "score": r["score"]
+            }
 
-        # Step 3: rerank
+        for r in sparse_results:
+            idx = r["index"]
+            if idx in combined:
+                combined[idx]["score"] += r["score"]
+            else:
+                combined[idx] = {
+                    "text": r["text"],
+                    "section": r.get("section", "body"),
+                    "score": r["score"]
+                }
+
+        # --- Metadata weighting ---
+        for item in combined.values():
+            if item["section"] == "related":
+                item["score"] *= 0.5
+
+        # --- Convert ---
+        merged = list(combined.values())
+
+        # --- Sort ---
+        merged = sorted(merged, key=lambda x: x["score"], reverse=True)
+
+        chunks = [r["text"] for r in merged[:k * 2]]
+
+        # --- Rerank ---
         if self._reranker:
             ranked = self._reranker.rerank(query, chunks)
-            chunks = [c for c, _ in ranked[:final_k]]
+            final_chunks = [c for c, _ in ranked[:k]]
+        else:
+            final_chunks = chunks[:k]
 
-        if not chunks:
+        if not final_chunks:
             logger.warning("No relevant chunks found for query.")
         else:
-            logger.debug("Retrieved %d chunks (top score: %.4f).", len(results), results[0]["score"])
+            logger.debug("Retrieved %d chunks.", len(final_chunks))
 
-        return chunks
+        return final_chunks

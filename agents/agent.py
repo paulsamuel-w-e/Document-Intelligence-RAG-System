@@ -93,6 +93,7 @@ class DocumentAgent:
             intent = "summarize"
         elif q_type == "deep":
             top_k = 10
+            query = query + " Explain the concept clearly, including how it works and why it is used."
         else:
             top_k = 5
 

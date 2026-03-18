@@ -34,6 +34,7 @@ from rag.reranker import Reranker
 from rag.retriever import Retriever
 from rag.splitter import split_text
 from rag.vectorstore import VectorStore
+from rag.bm25 import BM25Retriever
 from utils.logger import get_logger
 
 logger = get_logger("test_rag")
@@ -84,6 +85,7 @@ def build_pipeline(pdf_path: str, backend: str, top_k: int = 5):
     # 5. Retriever
     reranker = Reranker()
     retriever = Retriever(embed_model, store, top_k=top_k, reranker=reranker)
+    retriever._bm25 = BM25Retriever(store._chunks)
 
     # 6. LLM
     logger.info("=== Step 5: Loading LLM (backend=%s) ===", backend)

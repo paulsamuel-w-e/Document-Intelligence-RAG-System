@@ -54,8 +54,19 @@ def _is_valid_chunk(chunk: str) -> bool:
     ratio = alpha_count / max(len(chunk), 1)
     return ratio >= _MIN_ALPHA_RATIO
 
+def _detect_section(text: str) -> str:
+    t = text.lower()
 
-def split_text(text: str) -> list[str]:
+    if "abstract" in t[:200]:
+        return "abstract"
+    if "introduction" in t:
+        return "intro"
+    if "related work" in t:
+        return "related"
+    return "body"
+
+
+def split_text(text: str) -> list[dict]:
     """
     Clean and split raw document text into overlapping chunks.
 
@@ -75,7 +86,14 @@ def split_text(text: str) -> list[str]:
     )
 
     raw_chunks = splitter.split_text(cleaned)
-    valid_chunks = [c for c in raw_chunks if _is_valid_chunk(c)]
+    valid_chunks = [
+        {
+            "text": c,
+            "section": _detect_section(c)
+        }
+        for c in raw_chunks
+        if _is_valid_chunk(c)
+    ]
 
     logger.info(
         "Split into %d chunks (%d discarded as noisy).",
