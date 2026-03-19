@@ -1,5 +1,6 @@
 import argparse
 import json
+import time
 
 from eval.evaluator import Evaluator
 from test.test_rag import build_pipeline
@@ -19,7 +20,20 @@ def load_eval_data(path: str):
 # ---------------------------------------------------------------------------
 
 def run_evaluation(pdf_path: str, backend: str):
-    agent = build_pipeline(pdf_path, backend)
+    """
+    Run full evaluation pipeline:
+    - Builds RAG system
+    - Executes queries
+    - Computes retrieval + answer metrics
+    - Reports aggregated results
+    """
+    if backend == "llama_cpp":
+        agent = build_pipeline(
+            pdf_path,
+            backend,
+        )
+    else:
+        agent = build_pipeline(pdf_path, backend)
     retriever = agent._retriever  # access for evaluation
 
     evaluator = Evaluator()
@@ -28,17 +42,26 @@ def run_evaluation(pdf_path: str, backend: str):
     results = []
     difficulty_scores = {}
 
+    print(f"\nRunning evaluation with backend: {backend}")
+
     for item in data:
         query = item["query"]
         expected = item["expected_keywords"]
         difficulty = item.get("difficulty", "unknown")
 
         # --- Retrieval ---
-        chunks, meta = retriever.retrieve_with_metadata(query)
-        context_text = " ".join(m["text"] for m in meta)
+        chunks = retriever.retrieve(query)
+        context_text = " ".join(chunks)
+        meta = [{"text": c} for c in chunks]
+        context_text = "\n\n".join(
+            f"[Chunk {i+1}] {m['text']}"
+            for i, m in enumerate(meta)
+        )
 
         # --- Answer ---
+        start = time.perf_counter()
         answer = agent.run(query)
+        latency = time.perf_counter() - start
 
         # --- Evaluation ---
         result = evaluator.evaluate(
@@ -50,6 +73,8 @@ def run_evaluation(pdf_path: str, backend: str):
         )
 
         results.append(result)
+        latencies = []
+        latencies.append(latency)
 
         # --- Difficulty tracking ---
         difficulty_scores.setdefault(difficulty, []).append(result["answer_score"])
@@ -64,6 +89,7 @@ def run_evaluation(pdf_path: str, backend: str):
         print(f"Hallucination Suspected: {result['hallucination_suspected']}")
         print(f"Missing Keywords: {result['missing_keywords']}")
         print(f"Passed: {result['passed']}")
+        print(f"Latency: {latency:.3f}s")
 
     # -----------------------------------------------------------------------
     # Summary
@@ -71,12 +97,14 @@ def run_evaluation(pdf_path: str, backend: str):
 
     avg_answer = sum(r["answer_score"] for r in results) / len(results)
     avg_retrieval = sum(r["retrieval_score"] for r in results) / len(results)
+    avg_latency = sum(latencies) / len(latencies)
 
     print("\n" + "=" * 60)
     print("OVERALL RESULTS")
     print("=" * 60)
     print(f"Average Answer Score: {avg_answer:.2f}")
     print(f"Average Retrieval Score: {avg_retrieval:.2f}")
+    print(f"Average Latency: {avg_latency:.3f}s")
 
     print("\n--- By Difficulty ---")
     for diff, scores in difficulty_scores.items():
@@ -94,7 +122,7 @@ def parse_args():
     parser.add_argument(
         "--backend",
         default="local",
-        choices=["local", "openai"],
+        choices=["local", "openai", "llama_cpp"],
         help="LLM backend",
     )
     return parser.parse_args()

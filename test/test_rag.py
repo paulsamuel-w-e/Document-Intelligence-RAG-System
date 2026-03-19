@@ -18,6 +18,8 @@ import sys
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import torch
+torch.manual_seed(42)
 
 load_dotenv()  # loads variables from .env into environment
 
@@ -84,16 +86,27 @@ def build_pipeline(pdf_path: str, backend: str, top_k: int = 5):
 
     # 5. Retriever
     reranker = Reranker()
-    retriever = Retriever(embed_model, store, top_k=top_k, reranker=reranker)
-    retriever._bm25 = BM25Retriever(store._chunks)
+    retriever = Retriever(
+        embed_model,
+        store,
+        top_k=top_k,
+        reranker=reranker,
+        bm25=BM25Retriever(store._chunks),
+    )
 
     # 6. LLM
     logger.info("=== Step 5: Loading LLM (backend=%s) ===", backend)
-    llm = get_llm(backend=backend)
+    if backend == "llama_cpp":
+        llm = get_llm(
+            backend="llama_cpp",
+            model_path="models\mistral\mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+            n_gpu_layers=20,
+        )
+    else:
+        llm = get_llm(backend=backend)
 
     # 7. Agent
     agent = DocumentAgent(retriever=retriever, llm=llm)
-
     return agent
 
 
@@ -128,7 +141,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--backend",
         default="openai",
-        choices=["openai", "local"],
+        choices=["openai", "local", "llama_cpp"],
         help="LLM backend to use (default: openai).",
     )
     parser.add_argument(

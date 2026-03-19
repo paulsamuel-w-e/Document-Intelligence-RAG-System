@@ -88,28 +88,22 @@ class DocumentAgent:
         logger.info("Intent detected: '%s' | Query type: '%s'", intent, q_type)
 
         # NEW: adaptive retrieval
+        retrieval_query = query
+        generation_query = query
+
         if q_type == "broad":
             top_k = 12
-            intent = "summarize"
         elif q_type == "deep":
             top_k = 10
-            query = query + " Explain the concept clearly, including how it works and why it is used."
+            generation_query = query + " Explain clearly with reasoning."
         else:
             top_k = 5
 
-        logger.info("Query type: '%s' | top_k=%d", q_type, top_k)
-
-        chunks = self._retriever.retrieve(query, top_k=top_k)
-
-        if not chunks:
-            return (
-                "I could not find relevant information in the document "
-                "to answer your question."
-            )
+        chunks = self._retriever.retrieve(retrieval_query, top_k=top_k)
 
         if intent == "summarize":
             return summarize(chunks, self._llm)
         elif intent == "extract":
             return extract_key_info(chunks, self._llm)
         else:
-            return answer_question(query, chunks, self._llm)
+            return answer_question(generation_query, chunks, self._llm)

@@ -41,14 +41,30 @@ class Evaluator:
                     return True
         return False
 
-    def keyword_match_score(self, answer: str, keywords: List[str]) -> float:
-        if not keywords:
-            return 0.0
-        hits = 0
+    def keyword_match_score(self, answer, keywords):
+        weights = {kw: 2 if len(kw) > 8 else 1 for kw in keywords}
+
+        total = sum(weights.values())
+        score = 0
+
         for kw in keywords:
             if self._fuzzy_contains(answer, kw):
-                hits += 1
-        return hits / len(keywords)
+                score += weights[kw]
+
+        return score / total
+    
+    def answer_depth_score(self, answer: str) -> float:
+        length = len(answer.split())
+
+        if length < 8:
+            return 0.4   # short but acceptable
+        elif length < 25:
+            return 0.7   # ideal range
+        else:
+            return 1.0   # detailed
+        
+    def is_negative_query(self, query: str) -> bool:
+        return any(x in query.lower() for x in ["not", "does not", "isn't"])
 
     def retrieval_score(self, retrieval_meta: List[Dict], keywords: List[str]) -> float:
         """
@@ -58,24 +74,22 @@ class Evaluator:
         if not keywords:
             return 0.0
         combined = " ".join(m.get("text", "") for m in retrieval_meta)
-        hits = sum(1 for kw in keywords if self._fuzzy_contains(combined, kw))
-        return hits / len(keywords)
+        return self.keyword_match_score(combined, keywords)
 
-    def hallucination_check(self, answer: str, context: Optional[str]) -> bool:
-        """
-        Very simple check: does the answer text (or significant keywords)
-        appear in the provided context? If not, flag as possible hallucination.
-        This is conservative and only a heuristic.
-        """
+    def hallucination_check(self, answer: str, context: Optional[str], keywords: List[str]) -> bool:
         if not context:
-            return True  # can't verify → treat as risky
-        a = _normalize_text(answer)
-        c = _normalize_text(context)
-        # if large portion of answer present in context, it's not hallucination
-        if a and a in c:
+            return True
+
+        # If answer contains keywords not supported by context → hallucination
+        if not keywords:
             return False
-        # check by sentences / keyword overlap
-        return True  # likely hallucination if not directly found
+
+        unsupported = [
+            kw for kw in keywords
+            if self._fuzzy_contains(answer, kw) and not self._fuzzy_contains(context, kw)
+        ]
+
+        return len(unsupported) / len(keywords) > 0.5
 
     def evaluate(
         self,
@@ -93,7 +107,13 @@ class Evaluator:
           - missing_keywords: list[str] keywords not found in answer
           - evidence: short excerpt from context where keywords appeared (if any)
         """
-        answer_score = self.keyword_match_score(answer, expected_keywords)
+        keyword_score = self.keyword_match_score(answer, expected_keywords)
+        depth_score = self.answer_depth_score(answer)
+        answer_score = 0.7 * keyword_score + 0.3 * depth_score
+        if self.is_negative_query(query):
+            if not any(x in answer.lower() for x in ["not", "no", "does not"]):
+                answer_score *= 0.5
+
         retrieval_score = 0.0
         if retrieval_meta is not None:
             retrieval_score = self.retrieval_score(retrieval_meta, expected_keywords)
@@ -112,7 +132,7 @@ class Evaluator:
                         )
                         break
 
-        hall = self.hallucination_check(answer, context)
+        hall = self.hallucination_check(answer, context, expected_keywords)
 
         return {
             "query": query,

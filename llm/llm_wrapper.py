@@ -31,6 +31,15 @@ class BaseLLM(ABC):
         """Generate a response for the given prompt."""
         ...
 
+    @property
+    def backend_name(self) -> str:
+        """
+        Identifier for prompt formatting.
+
+        Used by prompt_builder to apply model-specific templates.
+        """
+        return "base"
+
 
 # ---------------------------------------------------------------------------
 # OpenAI backend
@@ -75,6 +84,10 @@ class OpenAILLM(BaseLLM):
             temperature=0.2,
         )
         return response.choices[0].message.content.strip()
+    
+    @property
+    def backend_name(self) -> str:
+        return "openai"
 
 
 # ---------------------------------------------------------------------------
@@ -136,6 +149,10 @@ class LocalLLM(BaseLLM):
             )
 
         return self._tokenizer.decode(output_ids[0], skip_special_tokens=True).strip()
+    
+    @property
+    def backend_name(self) -> str:
+        return "local"
 
 
 # ---------------------------------------------------------------------------
@@ -158,5 +175,10 @@ def get_llm(backend: str = "openai", **kwargs) -> BaseLLM:
         return OpenAILLM(**kwargs)
     elif backend == "local":
         return LocalLLM(**kwargs)
+    elif backend == "llama_cpp":
+        from .llama_cpp_llm import LlamaCppLLM
+        return LlamaCppLLM(**kwargs)
     else:
-        raise ValueError(f"Unknown LLM backend: '{backend}'. Choose 'openai' or 'local'.")
+        raise ValueError(
+            f"Unknown LLM backend: '{backend}'. Choose 'openai', 'local', or 'llama_cpp'."
+        )

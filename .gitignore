@@ -34,3 +34,6 @@ temp/
 
 # Data (optional)
 data/*.pdf
+
+# Models
+models/

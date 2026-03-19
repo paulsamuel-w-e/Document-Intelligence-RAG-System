@@ -26,7 +26,8 @@ class Retriever:
         embed_model: EmbeddingModel,
         vector_store: VectorStore,
         top_k: int = 5,
-        reranker = None
+        reranker = None,
+        bm25 = None
     ) -> None:
         self._embed = embed_model
         self._store = vector_store
