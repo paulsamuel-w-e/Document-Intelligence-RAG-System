@@ -1,4 +1,4 @@
-# 📄 Document Intelligence RAG System
+# 📄 Hybrid Retrieval RAG System with Evaluation and Reranking
 
 A modular, evaluation-driven Retrieval-Augmented Generation (RAG) system for document understanding:
 
