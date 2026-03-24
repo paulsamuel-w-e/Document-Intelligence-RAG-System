@@ -49,7 +49,7 @@ This system goes beyond basic RAG by combining **hybrid retrieval, reranking, an
 ---
 
 # 🏗️ Architecture
-![System Architecture](docs/images/Architecture.png)
+![System Architecture](docs/images/architecture.png)
 ## High-Level Flow
 
 PDF
