@@ -1,75 +1,60 @@
-⚠️ Current Limitations
+# ⚠️ Current Limitations
 
-1. LLM Layer
+## 1. Reasoning Control (Primary Bottleneck)
 
-* Local model (Flan-T5) has weak reasoning ability
-* Poor handling of negation and multi-step reasoning
-* Occasional copying of context patterns
-
----
-
-2. Prompting / Generation Control
-
-* Prompts are not strictly enforced
-* Model may copy context artifacts (e.g., [Chunk X])
-* Weak control over output structure
-* Answers may be incomplete or overly short
+* Weak handling of negation ("NOT", absence-based queries)
+* No explicit reasoning steps
+* Model may guess instead of verifying
 
 ---
 
-3. Context Construction (Major Limitation)
+## 2. Answer Precision
 
-* Flat concatenation of chunks
-* No hierarchical structure
-* No prioritization (abstract > intro > body)
-* No global document awareness
+* Tendency to produce hedged or non-committal answers
+* Inconsistent handling of binary (yes/no) questions
 
 ---
 
-4. Answer Quality
+## 3. Context Utilization
 
-* Often extractive instead of explanatory
-* Missing key concepts despite correct retrieval
-* Weak synthesis across multiple chunks
-
----
-
-5. Chunking
-
-* Character-based splitting
-* Breaks semantic boundaries
-* Not heading-aware
+* Occasionally uses general knowledge instead of context
+* Weak enforcement of “context-only” constraint
 
 ---
 
-6. Agent Layer
+## 4. Keyword Alignment
 
-* Heuristic routing (keyword-based)
-* Limited handling of complex queries
+* Answers may be correct but miss expected key terms
+* Impacts evaluation scores despite correctness
 
 ---
 
-7. Evaluation
+## 5. Technical Depth
+
+* Limited ability to provide concept-complete explanations
+* Struggles with detailed technical breakdowns
+
+---
+
+## 6. Context Construction
+
+* Flat chunk concatenation
+* No hierarchy or prioritization
+* No explicit relationship between chunks
+
+---
+
+## 7. Evaluation Limitations
 
 * Keyword-based scoring (approximate)
-* Simple hallucination heuristic
-* No semantic grading
+* Does not capture semantic correctness fully
 
 ---
 
-8. System Engineering
+## 🧠 Key Insight
 
-* No caching (OCR / embeddings / LLM)
-* No streaming responses
-* No latency optimization
+The system has transitioned from a retrieval bottleneck to a reasoning bottleneck:
 
----
-
-🧠 Key Insight
-
-The system’s primary bottleneck is:
-
-→ LLM reasoning and synthesis, not retrieval
-
-Retrieval performance is strong (~0.67),
-but answer quality remains low (~0.22).
+→ Retrieval is strong (~0.77)
+→ Answer quality is improved (~0.71)
+→ Remaining failures are due to reasoning and control limitations

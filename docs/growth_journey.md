@@ -84,114 +84,86 @@ each stage unlocks new capabilities, but also exposes deeper problems.
 
 ---
 
-# 🎮 Stage 3 — “Evaluation & Reality Check” (CURRENT)
+# 🎮 Stage 3 — “Evaluation & Measurable Progress”
 
 ## What we added
 
-* Evaluation dataset (multi-difficulty queries)
-* Metrics:
+* Hybrid retrieval (dense + BM25)
+* Cross-encoder reranking
+* Metadata-aware scoring
+* Improved prompt control
+* Evaluation framework with diagnostics
 
-  * Retrieval score
-  * Answer score
-  * Hallucination signal
+---
 
 ## Milestone
 
-✅ “We can measure system performance”
+✅ “We can measure and significantly improve system performance”
+
+---
 
 ## Results
 
-* Retrieval Score: ~0.67 ✅
-* Answer Score: ~0.22 ❌
+* Retrieval Score: ~0.77 ✅
+* Answer Score: ~0.71 ✅ (major improvement)
+
+---
 
 ## What this revealed
 
-* Retrieval is reasonably strong
-* LLM struggles with:
+### Strengths
 
-  * reasoning
-  * explanation
-  * combining multiple chunks
-  * handling negation
-* Some hallucinations still occur
+* Retrieval is strong and reliable
+* Reranking improves chunk relevance
+* LLM produces coherent, grounded answers
+* Medium-difficulty reasoning performs well
+
+---
+
+### Weaknesses (Critical Insights)
+
+1. **Negation handling is weak**
+
+   * Fails on “NOT used” type questions
+   * Model guesses instead of verifying absence
+
+2. **Fact precision is inconsistent**
+
+   * Avoids definitive answers
+   * Produces hedged responses
+
+3. **Keyword alignment issues**
+
+   * Answers are correct but miss expected terms
+
+4. **Technical depth limitations**
+
+   * Struggles with concept-complete explanations
+
+5. **Context misuse in edge cases**
+
+   * Generates general knowledge instead of context-specific answers
+
+---
 
 ## Key Learning (CRITICAL)
 
-> The primary bottleneck is not retrieval — it is LLM reasoning and synthesis
+> Improving retrieval alone is insufficient —
+> controlled reasoning and constraint enforcement are required for correctness.
 
 ---
 
-# 🎯 Next Stage (Locked) — Stage 4 “Controlled Generation”
+# 🎯 Next Stage — Stage 4 “Controlled Reasoning”
 
-## What needs to be done
+## Focus Areas
 
-* Stronger prompt design:
-
-  * enforce structure
-  * prevent hallucination
-  * avoid copying artifacts
-* Better answer constraints:
-
-  * no "Yes/No only" answers
-  * handle negation explicitly
-* Output formatting control
+* Multi-step generation (evidence → answer)
+* Negation-aware reasoning
+* Strict grounding enforcement
+* Structured answer formats
 
 ## Expected Outcome
 
-* More consistent answers
-* Reduced hallucinations
-* Improved answer score
-
----
-
-# ⚠️ Current Bottlenecks
-
-1. LLM capability (major bottleneck)
-2. Context construction (flat, unstructured)
-3. Prompt control (not yet enforced)
-
----
-
-# 🚀 Future Milestones
-
-## 🎯 Stage 5 — “Stronger Intelligence”
-
-* Switch to stronger LLM (OpenAI)
-* Structured context (section-aware ordering)
-
-## 🎯 Stage 6 — “Smarter Retrieval”
-
-* Semantic chunking
-* Improved reranking
-* Score-based filtering
-
-## 🎯 Stage 7 — “Production System”
-
-* Caching (OCR, embeddings, LLM)
-* Streaming responses
-* Latency optimization
-
----
-
-# 🧠 Final Insight
-
-This journey revealed a key principle:
-
-> You cannot improve what you do not measure.
-
----
-
-# 🏁 Current Position
-
-We have moved from:
-
-❌ “It works”
-→ ✅ “We understand where it fails”
-
----
-
-# 🎯 One-line summary
-
-> Built a modular RAG system, improved retrieval, added evaluation, and identified LLM reasoning as the primary limitation.
-
----
+* Improved tricky question performance
+* Better factual precision
+* Reduced ambiguity and hallucination risk

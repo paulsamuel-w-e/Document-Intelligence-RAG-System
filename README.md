@@ -1,128 +1,179 @@
-📄 Document Intelligence RAG System
+# 📄 Document Intelligence RAG System
 
-A modular, production-oriented Retrieval-Augmented Generation (RAG) system for document understanding tasks such as:
+A modular, evaluation-driven Retrieval-Augmented Generation (RAG) system for document understanding:
 
 * Question Answering (QA)
 * Summarization
 * Key Information Extraction
 
-The system implements **hybrid retrieval (dense + sparse), metadata-aware filtering, and evaluation-driven development**.
+This system goes beyond basic RAG by combining **hybrid retrieval, reranking, and evaluation-driven iteration** to identify and address real-world failure modes.
 
 ---
 
-🚀 Features
+# 🚀 Key Highlights
 
-📥 PDF ingestion with OCR fallback (PaddleOCR)
-✂️ Text cleaning and chunking with noise filtering
-🔎 Hybrid retrieval (FAISS + BM25)
-🎯 Metadata-aware ranking (section-based weighting)
-🧠 LLM abstraction (OpenAI + Local HuggingFace)
-🤖 Agent-based query routing with query-type awareness
-📊 Evaluation framework (retrieval + answer quality + hallucination signals)
-🧪 CLI-based testing and benchmarking
-
----
-
-## 🏗️ Architecture
-
-The system follows a modular Retrieval-Augmented Generation (RAG) pipeline with hybrid retrieval and evaluation.
-
-![System Architecture](docs/images/architecture.png)
-
-### High-Level Flow
-
-PDF  
-→ Ingestion (PyMuPDF + OCR fallback)  
-→ Processing (cleaning + chunking + metadata)  
-→ Embeddings (SentenceTransformers)  
-→ Vector Store (FAISS)  
-→ Hybrid Retrieval (Dense + BM25)  
-→ Agent (intent + query-type routing)  
-→ Tools (QA / Summarization / Extraction)  
-→ LLM (OpenAI / Local)  
-→ Output  
+* 🔎 Hybrid retrieval (Dense + BM25) with strong recall
+* 🔁 Cross-encoder reranking for high-precision retrieval
+* 🎯 Metadata-aware scoring (section-based weighting)
+* 🤖 Agent-based query routing (intent + query-type aware)
+* 🧠 Multi-backend LLM support (OpenAI / HuggingFace / llama.cpp)
+* 📊 Evaluation-driven development (retrieval, answer quality, hallucination)
+* 🧪 CLI-based testing and benchmarking
 
 ---
 
-### Key Enhancements
+# 📊 Current Performance (Evaluation)
 
-- Hybrid Retrieval: Combines semantic (dense) + keyword (BM25) search  
-- Metadata Awareness: Section-based weighting (e.g., downweight "related work")  
-- Adaptive Retrieval: Dynamic top-k based on query type  
-- Evaluation Layer: Measures retrieval, answer quality, and hallucination  
-
----
-
-📂 Project Structure
-
-- agents/ → Agent orchestration and tools  
-- rag/ → Embeddings, retriever (hybrid), vector store, splitter  
-- llm/ → LLM abstraction layer  
-- ingestion/ → PDF loading and OCR  
-- eval/ → Evaluation dataset + evaluator  
-- utils/ → Logging utilities  
-- test/ → CLI pipeline and evaluation scripts  
-- docs/ → System documentation  
+| Metric          | Score |
+| --------------- | ----- |
+| Retrieval Score | ~0.77 |
+| Answer Score    | ~0.71 |
+| Easy            | 0.76  |
+| Medium          | 0.85  |
+| Hard            | 0.68  |
+| Tricky          | 0.52  |
 
 ---
 
-⚙️ Installation
+## 🧠 Key Insight
 
+> Retrieval is no longer the bottleneck — reasoning and generation control are.
+
+* Retrieval quality is strong and reliable
+* Remaining failures occur in:
+
+  * negation handling ("NOT" queries)
+  * precise fact answering
+  * multi-step reasoning
+
+---
+
+# 🏗️ Architecture
+![System Architecture](docs/images/Architecture.png)
+## High-Level Flow
+
+PDF
+→ Ingestion (PyMuPDF + OCR fallback)
+→ Processing (cleaning + chunking + metadata)
+→ Embeddings (SentenceTransformers)
+→ Vector Store (FAISS)
+→ Hybrid Retrieval (Dense + BM25)
+→ Reranking (Cross-Encoder)
+→ Context Construction
+→ Agent (intent + query-type routing)
+→ Tools (QA / Summarization / Extraction)
+→ LLM (OpenAI / Local / llama.cpp)
+→ Output
+
+---
+
+# 🧠 System Design
+
+## Retrieval Layer
+
+* Dense embeddings (MiniLM)
+* Sparse BM25 retrieval
+* Score merging
+* Metadata weighting
+
+## Ranking Layer
+
+* Cross-encoder reranker (MiniLM)
+* Improves top-k relevance
+
+## Generation Layer
+
+* Prompt-controlled generation
+* Strict grounding (context-only answers)
+* Task-specific prompting (QA / summary / extraction)
+
+## Evaluation Layer
+
+* Keyword-based scoring (with fuzzy matching)
+* Answer depth scoring
+* Hallucination detection
+* Difficulty-based benchmarking
+
+---
+
+# 📂 Project Structure
+
+agents/ → Agent orchestration and tools
+rag/ → Retrieval, embeddings, reranking, chunking
+llm/ → LLM abstraction layer
+ingestion/ → PDF loading + OCR
+eval/ → Evaluation dataset + evaluator
+utils/ → Logging
+test/ → CLI pipeline and evaluation
+
+---
+
+# ⚙️ Installation
+
+```bash
 pip install -r requirements.txt
+```
 
 ---
 
-▶️ Usage
+# ▶️ Usage
 
-Run single query:
+### Run a single query
 
+```bash
 python -m test.test_rag --pdf data/sample.pdf --query "What is this paper about?"
+```
 
-Run evaluation:
+### Run evaluation
 
-python -m test.test_eval --pdf data/sample.pdf --backend local
+```bash
+python -m test.test_eval --pdf data/sample.pdf --backend llama_cpp
+```
 
 ---
 
-🧠 Supported LLMs
+# 🧠 Supported LLMs
 
 * OpenAI (GPT models)
 * Local HuggingFace (Flan-T5)
+* llama.cpp (GGUF models like Mistral-7B)
 
 ---
 
-📊 Evaluation
+# ⚠️ Current Limitations
 
-The system includes a dataset-driven evaluation pipeline measuring:
-
-* Retrieval quality (keyword recall in retrieved chunks)
-* Answer quality (keyword coverage in generated response)
-* Hallucination signals (context grounding checks)
-* Difficulty-wise performance (easy / medium / hard / tricky)
-
----
-
-⚠️ Current Limitations
-
-* Local LLM (Flan-T5) limits reasoning quality
-* Context construction is still flat (no hierarchical structure)
-* Prompt control is still basic (structured generation not fully enforced)
-* No citation validation yet
-* No semantic chunking (still character-based)
-* Agent routing is heuristic (not LLM-driven)
+* Weak handling of negation and “NOT” queries
+* No multi-step reasoning (single-pass generation)
+* Flat context (no hierarchical structure)
+* Keyword-based evaluation (not fully semantic)
+* No strict citation validation
 
 ---
 
-🔮 Roadmap
+# 🔮 Roadmap
 
-* Structured context construction (section-aware)
-* Stronger prompt control and grounded generation
+## Next Immediate Focus
+
+* Two-step generation (evidence → answer)
+* Negation-aware reasoning
+* Structured context (section-aware hierarchy)
+
+## Future
+
+* LLM-based evaluation (faithfulness, semantic grading)
 * Semantic chunking (heading-aware)
-* LLM-based routing
+* LLM-based agent routing
 * Production optimizations (caching, streaming)
 
 ---
 
-📜 License
+# 🧠 Final Takeaway
+
+> This project demonstrates that improving retrieval alone is insufficient —
+> real-world RAG systems require **controlled reasoning and evaluation-driven design**.
+
+---
+
+# 📜 License
 
 MIT License

@@ -34,7 +34,7 @@ class LlamaCppLLM(BaseLLM):
             model_path=model_path,
             n_ctx=n_ctx,
             n_gpu_layers=n_gpu_layers,  # offload to GPU
-            verbose=False,
+            verbose=True,
         )
 
         self.temperature = temperature
@@ -46,7 +46,7 @@ class LlamaCppLLM(BaseLLM):
         """
         Apply Mistral prompt template.
         """
-        return f"<s>[INST] {prompt} [/INST]"
+        return f"[INST] {prompt} [/INST]"
 
     def generate(self, prompt: str, max_new_tokens: int = 256) -> str:
         formatted_prompt = self._format_prompt(prompt)

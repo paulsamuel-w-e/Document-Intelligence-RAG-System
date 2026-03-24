@@ -1,92 +1,130 @@
-🔄 End-to-End Pipeline
+# 🔄 End-to-End Pipeline
 
-1. Document Loading
-   Input: PDF
-   Output: raw text
+## 1. Document Loading
+
+Input: PDF
+Output: raw text
 
 ---
 
-2. Text Extraction
+## 2. Text Extraction
 
 * PyMuPDF primary extraction
-* OCR fallback if quality is low
+* OCR fallback (PaddleOCR) if quality is low
 
 ---
 
-3. Text Cleaning
-   Removes:
+## 3. Text Cleaning
+
+Removes:
 
 * references
 * captions
 * page numbers
+* excessive whitespace
 
 ---
 
-4. Chunking
+## 4. Chunking & Metadata
 
-* Fixed-size chunking (500 / overlap 100)
+* Fixed-size chunking (500, overlap 100)
 * Noise filtering
-* Section tagging (abstract, intro, related, body)
+* Section tagging:
+
+  * abstract
+  * introduction
+  * related work
+  * body
 
 ---
 
-5. Embedding Generation
+## 5. Embedding Generation
 
-* Dense vector encoding (MiniLM)
-* Normalized for cosine similarity
-
----
-
-6. Vector Storage
-
-* FAISS index
-* Stores embeddings + metadata
+* SentenceTransformer (MiniLM)
+* Produces normalized dense vectors
 
 ---
 
-7. Query Processing
+## 6. Vector Storage
 
-a. Query Understanding
+* FAISS index (IndexFlatIP)
+* Stores embeddings + metadata-rich chunks
 
-* Intent detection
-* Query type classification
+---
 
-b. Hybrid Retrieval
+## 7. Query Processing
 
-* Dense retrieval (semantic)
-* Sparse retrieval (BM25)
-* Merge + score aggregation
+### a. Query Understanding
 
-c. Filtering & Ranking
+* Intent detection (QA / summarize / extract)
+* Query-type classification:
 
-* Metadata weighting
-* Optional reranking
+  * broad → document-level
+  * deep → reasoning/explanation
+  * fact → direct lookup
 
-d. Context Construction
+---
+
+### b. Hybrid Retrieval
+
+* Dense retrieval (semantic similarity)
+* Sparse retrieval (BM25 keyword matching)
+* Merge results (score aggregation)
+
+---
+
+### c. Metadata Weighting
+
+* Downweight low-value sections (e.g., related work)
+
+---
+
+### d. Reranking
+
+* Cross-encoder reorders top candidates
+* Improves final relevance
+
+---
+
+### e. Context Construction
 
 * Top-k chunk selection
-* Flattened context (current limitation)
+* Chunk labeling: `[Chunk X]`
+* Length control (truncate if needed)
 
-e. Tool Execution
-
-* QA / summarize / extract
-
-f. LLM Generation
-
-* Prompt-driven output
+⚠️ Current limitation: flat context (no hierarchy)
 
 ---
 
-8. Evaluation (NEW)
+### f. Tool Execution
 
-* Retrieval scoring
-* Answer scoring
-* Hallucination detection
+Based on intent:
+
+* QA → grounded answer generation
+* Summarization → document synthesis
+* Extraction → structured facts
+
+---
+
+### g. LLM Generation
+
+* Prompt-driven output
+* Strict grounding enforced
+* Handles negation and missing information
+
+---
+
+## 8. Evaluation
+
+* Retrieval scoring (keyword coverage in chunks)
+* Answer scoring (keyword + depth)
+* Hallucination detection (context mismatch)
 * Difficulty-based reporting
 
 ---
 
-Output
+## Output
 
 * Answer / Summary / Extracted facts
 * Evaluation metrics (optional mode)
+* Latency tracking

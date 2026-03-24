@@ -1,64 +1,87 @@
-🚀 Roadmap
+# 🚀 Roadmap
 
-Phase 1 (Next Immediate)
+## ⚡ Phase 1 — Controlled Reasoning (Immediate Priority)
 
-* Improve prompt structure (negation, reasoning control)
-* Add citation grounding ([Chunk X])
-* Improve answer formatting consistency
+* Implement two-step generation:
+
+  * Step 1: Extract evidence
+  * Step 2: Generate answer
+* Add negation-aware prompting:
+
+  * Explicit handling of “NOT” queries
+* Enforce strict grounding:
+
+  * No external knowledge
+  * Evidence-based answers only
+* Improve binary question handling (yes/no with justification)
 
 ---
 
-Phase 2 (High Impact)
+## ⚡ Phase 2 — Context Intelligence
 
-* Switch to stronger LLM (OpenAI backend)
-* Structured context construction:
+* Structured context:
 
   * section-aware grouping
   * prioritized ordering
+* Context compression (remove redundancy)
+* Better chunk selection strategies
 
 ---
 
-Phase 3
+## ⚡ Phase 3 — Answer Quality Optimization
 
-* Semantic chunking (heading-aware splitting)
-* Adaptive retrieval (score thresholds, dynamic k)
-* Improved reranking
+* Keyword anchoring (ensure coverage of key concepts)
+* Structured outputs:
+
+  * facts → reasoning → answer
+* Improve explanation depth
 
 ---
 
-Phase 4
+## ⚡ Phase 4 — Model Upgrade
 
-Evaluation Enhancements:
+* Switch to stronger LLM (OpenAI)
+* Compare reasoning vs local model
+* Evaluate cost-performance trade-offs
 
-* LLM-based grading
+---
+
+## ⚡ Phase 5 — Retrieval Refinement
+
+* Semantic chunking (heading-aware)
+* Adaptive retrieval (dynamic k, thresholds)
+* Improved reranking strategies
+
+---
+
+## ⚡ Phase 6 — Evaluation Enhancements
+
+* LLM-based grading (semantic correctness)
 * Faithfulness scoring
 * Retrieval recall@k
 
 ---
 
-Phase 5
+## ⚡ Phase 7 — System Engineering
 
-System Engineering:
-
-* Caching (OCR, embeddings, LLM responses)
+* Caching (OCR, embeddings, LLM)
 * Streaming responses
-* Batch processing
+* Latency optimization
 
 ---
 
-Phase 6 (Advanced Agent)
+## ⚡ Phase 8 — Advanced Agent
 
 * LLM-based routing
-* Multi-step reasoning
+* Multi-step reasoning pipelines
 * Tool chaining
 
 ---
 
-Long-Term Vision
+# 🎯 Strategic Direction
 
-A production-grade document intelligence system that is:
+The system evolution is guided by:
 
-* Reliable (evaluated and measurable)
-* Explainable (citations + grounding)
-* Scalable (optimized pipeline)
-* Generalizable across domains
+> Retrieval → solved
+> Reasoning → current bottleneck
+> Control → next frontier

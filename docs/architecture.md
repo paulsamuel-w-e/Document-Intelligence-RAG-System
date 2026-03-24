@@ -1,93 +1,107 @@
-🏗️ System Architecture
+# 🏗️ System Architecture
 
-Overview
+## Overview
 
-The system follows a **multi-stage hybrid RAG architecture**:
+The system follows a **multi-stage hybrid RAG architecture with reranking and controlled generation**:
 
-Ingestion → Processing → Embedding → Storage → Hybrid Retrieval → Filtering → Generation → Evaluation
+Ingestion → Processing → Embedding → Storage → Hybrid Retrieval → Reranking → Context Construction → Generation → Evaluation
 
 ---
 
-Layers
+## Layers
 
-1. Ingestion Layer
+### 1. Ingestion Layer
 
-* Extracts text via PyMuPDF
+* PyMuPDF text extraction
 * OCR fallback via PaddleOCR
 * Quality-based switching
 
 ---
 
-2. Processing Layer
+### 2. Processing Layer
 
-* Cleans noise (references, captions, page numbers)
-* Splits into chunks
-* Assigns metadata (section detection: abstract / intro / related / body)
+* Noise cleaning (references, captions, page numbers)
+* Chunking (fixed size + overlap)
+* Section detection (abstract / intro / related / body)
 
 ---
 
-3. Embedding Layer
+### 3. Embedding Layer
 
 * SentenceTransformer (MiniLM)
-* Produces normalized dense vectors
+* Normalized dense embeddings
 
 ---
 
-4. Storage Layer
+### 4. Storage Layer
 
 * FAISS (IndexFlatIP)
 * Stores embeddings + metadata-rich chunks
 
 ---
 
-5. Retrieval Layer (Hybrid)
+### 5. Retrieval Layer (Hybrid)
 
-* Dense search (semantic similarity)
-* Sparse search (BM25 keyword matching)
-* Merging (score aggregation)
-* Metadata weighting (e.g., downweight “related work”)
-* Optional reranking
-
----
-
-6. Agent Layer
-
-* Intent detection (summarize / extract / QA)
-* Query-type classification (broad / fact / deep)
-* Adaptive retrieval strategy (dynamic top_k)
+* Dense retrieval (semantic similarity)
+* Sparse retrieval (BM25 keyword matching)
+* Score merging (dense + sparse)
+* Metadata weighting (section-aware scoring)
 
 ---
 
-7. Tools Layer
+### 6. Reranking Layer
 
-Task-specific prompt templates:
+* Cross-encoder (MiniLM)
+* Reorders top candidates based on query–chunk relevance
 
-* Summarization → global synthesis
-* Extraction → structured facts
+---
+
+### 7. Agent Layer
+
+* Intent detection (QA / summarize / extract)
+* Query-type classification (broad / deep / fact)
+* Adaptive retrieval (dynamic top_k)
+
+---
+
+### 8. Context Construction
+
+* Concatenates top-ranked chunks
+* Labels chunks ([Chunk X])
+* Applies length constraints
+
+⚠️ Current limitation: flat context (no hierarchy)
+
+---
+
+### 9. Tools Layer
+
+Task-specific prompting:
+
 * QA → grounded answers
-
-(Note: Prompt control is currently basic and not strictly enforced)
+* Summarization → concise synthesis
+* Extraction → structured bullet points
 
 ---
 
-8. LLM Layer
+### 10. LLM Layer
 
-* OpenAI or local model
+* OpenAI / HuggingFace / llama.cpp
 * Prompt-driven generation
 * Output quality depends on model capability
 
 ---
 
-9. Evaluation Layer
+### 11. Evaluation Layer
 
-* Dataset-driven evaluation
-* Retrieval vs Answer scoring
+* Keyword-based scoring
+* Retrieval vs answer comparison
 * Hallucination detection
 * Difficulty-based analysis
 
 ---
 
-Design Principles
+## Design Principles
 
 * Modular and extensible
 * Retrieval ≠ generation separation
